@@ -42,33 +42,33 @@ export function Auth() {
           </p>
         </div>
 
-        <form onSubmit={handleAuth} className="space-y-6">
+        <form onSubmit={handleAuth} className="space-y-8">
           {error && (
-            <div className="p-4 bg-red-50 text-red-500 text-[13px] font-bold rounded-xl text-center border border-red-100/50">
+            <div className="p-4 bg-red-50 text-red-500 text-[13px] font-bold rounded-md text-center border border-red-100/50">
               {error}
             </div>
           )}
 
-          <div className="space-y-2.5">
-            <label className="text-[12px] font-bold text-gray-400 uppercase tracking-[0.2em] block ml-1">Email Address</label>
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] block">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-full text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/10 focus:bg-white focus:border-brand/20 transition-all font-sans text-text-main placeholder:text-gray-300"
+              className="w-full px-1 py-3 bg-transparent border-b-2 border-gray-100 text-base focus:outline-none focus:border-brand transition-all font-sans text-text-main placeholder:text-gray-300"
               placeholder="name@example.com"
             />
           </div>
 
-          <div className="space-y-2.5">
-            <label className="text-[12px] font-bold text-gray-400 uppercase tracking-[0.2em] block ml-1">Password</label>
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] block">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-full text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/10 focus:bg-white focus:border-brand/20 transition-all font-sans text-text-main placeholder:text-gray-300"
+              className="w-full px-1 py-3 bg-transparent border-b-2 border-gray-100 text-base focus:outline-none focus:border-brand transition-all font-sans text-text-main placeholder:text-gray-300"
               placeholder="••••••••"
             />
           </div>
@@ -76,7 +76,7 @@ export function Auth() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-all shadow-md mt-6 text-base tracking-wide focus:outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer disabled:opacity-50"
+            className="w-full bg-brand text-white py-4 rounded-md font-bold hover:bg-brand-hover transition-all shadow-sm mt-8 text-base tracking-wide focus:outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer disabled:opacity-50"
           >
             {loading ? "Processing..." : (isSignIn ? "Sign In" : "Sign Up")}
           </button>

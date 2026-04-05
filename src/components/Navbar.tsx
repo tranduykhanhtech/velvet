@@ -29,7 +29,7 @@ export function Navbar() {
         <Link to="/" className="text-[26px] font-serif font-bold text-brand tracking-wide hover:opacity-80 transition-opacity">
           Velvet.
         </Link>
-        <nav className="flex gap-8 text-[15px] font-medium text-text-muted items-center">
+        <nav className="flex gap-4 md:gap-8 text-[15px] font-medium text-text-muted items-center">
           <Link to="/gallery" className="hover:text-brand transition-colors">Gallery</Link>
           <AnimatePresence mode="wait">
             {isAdmin && (
@@ -37,6 +37,7 @@ export function Navbar() {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
+                className="hidden sm:block"
               >
                 <Link to="/studio/add" className="hover:text-brand transition-colors">Submit</Link>
               </motion.div>
@@ -50,21 +51,21 @@ export function Navbar() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="flex items-center gap-5 bg-gray-50 px-4 py-2 rounded-full border border-gray-100"
+                className="flex items-center gap-3 md:gap-5 bg-gray-50 px-2.5 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-100"
               >
-                <Link to="/favorites" className="hover:text-brand transition-colors" title="My Favorites">
+                <Link to="/favorites" className="hover:text-brand transition-colors shrink-0" title="My Favorites">
                   <Heart className="w-[18px] h-[18px]" />
                 </Link>
                 
-                <span className="flex items-center gap-2.5 text-text-main text-[13px] font-bold border-l border-gray-200 pl-4">
-                  <div className="w-6 h-6 rounded-full bg-brand/10 text-brand flex items-center justify-center text-[11px] uppercase">
+                <span className="flex items-center gap-2.5 text-text-main text-[13px] font-bold border-l border-gray-200 pl-2.5 md:pl-4">
+                  <div className="w-6 h-6 rounded-full bg-brand/10 text-brand flex items-center justify-center text-[11px] uppercase shrink-0">
                     {userDisplayName[0]}
                   </div>
-                  <span className="hidden sm:inline">{userDisplayName}</span>
+                  <span className="hidden md:inline truncate max-w-[80px]">{userDisplayName}</span>
                 </span>
                 <button 
                   onClick={handleSignOut} 
-                  className="text-gray-400 hover:text-brand transition-colors focus:outline-none cursor-pointer text-[12px] uppercase tracking-tighter font-bold"
+                  className="text-gray-400 hover:text-brand transition-colors focus:outline-none cursor-pointer text-[12px] uppercase tracking-tighter font-bold shrink-0"
                 >
                   Sign Out
                 </button>
