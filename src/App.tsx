@@ -5,6 +5,7 @@ import { Gallery } from "./pages/Gallery";
 import { MyFavorites } from "./pages/MyFavorites";
 import { RecipeDetail } from "./pages/RecipeDetail";
 import { Auth } from "./pages/Auth";
+import { Premium } from "./pages/Premium";
 
 // Studio
 import { AdminRoute } from "./components/AdminRoute";
@@ -23,6 +24,7 @@ function App() {
           <Route path="gallery" element={<Gallery />} />
           <Route path="recipe/:id" element={<RecipeDetail />} />
           <Route path="auth" element={<Auth />} />
+          <Route path="premium" element={<Premium />} />
           
           {/* User Routes */}
           <Route element={<ProtectedRoute />}>

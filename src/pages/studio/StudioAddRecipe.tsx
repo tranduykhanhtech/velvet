@@ -137,12 +137,12 @@ export function StudioAddRecipe() {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        throw new Error("Vui lòng đăng nhập để thực hiện hành động này.");
+        throw new Error("Please sign in to perform this action.");
       }
 
       // 2. Bảo mật chặt ở frontend (Admin Check)
       if (user.email !== import.meta.env.VITE_ADMIN_EMAIL) {
-        throw new Error("Unauthorized: Hành động này chỉ dành cho Admin.");
+        throw new Error("Unauthorized: This action is for Admin only.");
       }
 
       let finalImageUrl = existingImageUrl;
@@ -321,12 +321,12 @@ export function StudioAddRecipe() {
                 </div>
                 <div className="grid grid-cols-3 gap-5 w-full">
                   <Input
-                    placeholder="Nguyên liệu (vd: Espresso)"
+                    placeholder="Ingredient (e.g. Espresso)"
                     className="col-span-2 py-3 text-base"
                     {...register(`ingredients.${index}.name` as const, { required: true })}
                   />
                   <Input
-                    placeholder="Định lượng (vd: 30ml)"
+                    placeholder="Amount (e.g. 30ml)"
                     className="col-span-1 py-3 text-base"
                     {...register(`ingredients.${index}.amount` as const, { required: true })}
                   />

@@ -47,11 +47,11 @@ export function RecipeList() {
   }, []);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa công thức "${title}" không?`)) return;
+    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) return;
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user?.email !== import.meta.env.VITE_ADMIN_EMAIL) {
-       toast.error("Unauthorized: Hành động này chỉ dành cho Admin.");
+       toast.error("Unauthorized: This action is for Admin only.");
        return;
     }
 

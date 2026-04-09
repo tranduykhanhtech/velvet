@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Circle, Heart, Share, Lock, Loader2 } from "lucide-react";
+import { CheckCircle2, Circle, Heart, Share, Loader2, Crown, Eye, ArrowLeft } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { type Recipe } from "../components/RecipeCard";
 import { useAdmin } from "../lib/useAdmin";
@@ -11,13 +11,15 @@ export function RecipeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user } = useAdmin();
+  const { isAuthenticated, isPremiumUser, isAdmin, user } = useAdmin();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [isFavorited, setIsFavorited] = useState(false);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  const [viewCount, setViewCount] = useState(0);
+  const [favoriteCount, setFavoriteCount] = useState(0);
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -33,8 +35,27 @@ export function RecipeDetail() {
           ...data,
           ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
         });
+
+        // Record unique view (only for logged-in users)
+        if (user) {
+          await supabase.rpc('record_recipe_view', { 
+            p_recipe_id: id, 
+            p_user_id: user.id 
+          });
+          // Re-fetch updated counts
+          const { data: updated } = await supabase
+            .from('recipes')
+            .select('view_count, favorite_count')
+            .eq('id', id)
+            .single();
+          setViewCount(updated?.view_count || data.view_count || 0);
+          setFavoriteCount(updated?.favorite_count || data.favorite_count || 0);
+        } else {
+          setViewCount(data.view_count || 0);
+          setFavoriteCount(data.favorite_count || 0);
+        }
         
-        // 1. Kiểm tra xem user đã yêu thích món này chưa
+        // Check if user has favorited
         if (user) {
           const { data: favData } = await supabase
             .from("favorites")
@@ -82,7 +103,7 @@ export function RecipeDetail() {
 
   const handleToggleFavorite = async () => {
     if (!isAuthenticated) {
-      toast("Vui lòng đăng nhập để lưu món yêu thích", { icon: "🔒" });
+      toast("Please sign in to save favorites", { icon: "🔒" });
       navigate("/auth", { state: { from: location } });
       return;
     }
@@ -101,6 +122,7 @@ export function RecipeDetail() {
         
         if (error) throw error;
         setIsFavorited(false);
+        setFavoriteCount(prev => Math.max(0, prev - 1));
         toast.success("Removed from favorites");
       } else {
         // Favorite
@@ -113,6 +135,7 @@ export function RecipeDetail() {
         
         if (error) throw error;
         setIsFavorited(true);
+        setFavoriteCount(prev => prev + 1);
         toast.success("Saved to favorites!", { icon: "❤️" });
       }
     } catch (err: any) {
@@ -136,10 +159,17 @@ export function RecipeDetail() {
   }
 
   const instructions = recipe.instructions ? recipe.instructions.split('\n').filter(s => s.trim() !== '') : [];
-  const isLocked = recipe.is_premium && !isAuthenticated;
+  const canViewPremium = isPremiumUser || isAdmin;
+  const isLocked = recipe.is_premium && !canViewPremium;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 w-full">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm text-gray-400 hover:text-brand transition-colors mb-8 cursor-pointer font-medium"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back
+      </button>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 relative">
         {/* Left Column - Image */}
         <div className="relative">
@@ -164,13 +194,23 @@ export function RecipeDetail() {
 
         {/* Right Column - Content */}
         <div className="flex flex-col relative w-full h-full">
-          <motion.p 
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-[13px] text-brand font-black tracking-[0.3em] uppercase mb-5"
+            className="flex items-center gap-4 mb-5"
           >
-            {recipe.category} {recipe.is_premium && "• Premium"}
-          </motion.p>
+            <span className="text-[13px] text-brand font-black tracking-[0.3em] uppercase">
+              {recipe.category} {recipe.is_premium && "• Premium"}
+            </span>
+            <span className="flex items-center gap-4 text-[12px] text-gray-400 font-medium">
+              <span className="flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5" /> {viewCount.toLocaleString()}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Heart className="w-3.5 h-3.5" /> {favoriteCount.toLocaleString()}
+              </span>
+            </span>
+          </motion.div>
           <motion.h1 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -189,54 +229,64 @@ export function RecipeDetail() {
             </motion.p>
           )}
           
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex gap-5 mb-14 flex-wrap relative z-10"
-          >
-            <button 
-              onClick={handleShare}
-              className="flex gap-3 items-center bg-gray-50 hover:bg-gray-100 text-gray-600 px-8 py-3 rounded-full text-base font-bold transition-all shadow-sm cursor-pointer"
+          {!isLocked && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex gap-5 mb-14 flex-wrap relative z-10"
             >
-              <Share className="w-5 h-5" /> Share
-            </button>
-            <button 
-              onClick={handleToggleFavorite}
-              disabled={isFavoriteLoading}
-              className={`flex gap-3 items-center px-8 py-3 rounded-full text-base font-bold transition-all shadow-md cursor-pointer ${
-                isFavorited 
-                  ? "bg-brand text-white" 
-                  : "bg-white border-2 border-gray-100 text-text-main hover:bg-gray-50"
-              }`}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={isFavorited ? "fav" : "not-fav"}
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: [0.8, 1.2, 1] }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Heart className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`} />
-                </motion.div>
-              </AnimatePresence>
-              {isFavorited ? "Saved to Favorites" : "Save to Favorites"}
-            </button>
-          </motion.div>
+              <button 
+                onClick={handleShare}
+                className="flex gap-3 items-center bg-gray-50 hover:bg-gray-100 text-gray-600 px-8 py-3 rounded-full text-base font-bold transition-all shadow-sm cursor-pointer"
+              >
+                <Share className="w-5 h-5" /> Share
+              </button>
+              <button 
+                onClick={handleToggleFavorite}
+                disabled={isFavoriteLoading}
+                className={`flex gap-3 items-center px-8 py-3 rounded-full text-base font-bold transition-all shadow-md cursor-pointer ${
+                  isFavorited 
+                    ? "bg-brand text-white" 
+                    : "bg-white border-2 border-gray-100 text-text-main hover:bg-gray-50"
+                }`}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={isFavorited ? "fav" : "not-fav"}
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: [0.8, 1.2, 1] }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Heart className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`} />
+                  </motion.div>
+                </AnimatePresence>
+                {isFavorited ? "Saved to Favorites" : "Save to Favorites"}
+              </button>
+            </motion.div>
+          )}
 
           <div className="relative">
             {isLocked && (
-              <div className="absolute inset-x-0 top-0 z-20 flex flex-col items-center justify-center pt-20 pb-28 px-10 mt-4 backdrop-blur-xl bg-white/70 border border-gray-100 shadow-2xl rounded-[32px]">
-                 <div className="bg-brand/10 p-6 rounded-full mb-8">
-                   <Lock className="w-10 h-10 text-brand" />
-                 </div>
-                 <h3 className="font-serif text-[32px] text-text-main mb-4 text-center tracking-wide leading-tight">Masterpiece Exclusive</h3>
-                 <p className="text-gray-500 font-sans text-center mb-10 max-w-sm leading-relaxed text-base font-medium">
-                   This secret recipe is reserved for the Velvet inner circle. Sign in to unlock the full craft.
+              <div className="absolute inset-x-0 top-0 z-20 flex flex-col items-center justify-center py-16 px-8 mt-4 backdrop-blur-md bg-white/80 border border-gray-100 rounded-2xl">
+                 <Crown className="w-8 h-8 text-brand/60 mb-5" />
+                 <h3 className="font-serif text-2xl text-text-main mb-3 text-center">Premium Exclusive</h3>
+                 <p className="text-gray-400 font-sans text-center mb-8 max-w-xs leading-relaxed text-sm">
+                   {isAuthenticated 
+                     ? "This recipe is reserved for Premium members. Upgrade to unlock full ingredients and instructions."
+                     : "Sign in and upgrade to Premium to discover this exclusive recipe."
+                   }
                  </p>
-                 <Link to="/auth" className="bg-brand text-white px-12 py-4 rounded-full hover:bg-brand-hover tracking-[0.05em] transition-all font-black text-sm shadow-lg cursor-pointer">
-                   Sign In to Unlock
-                 </Link>
+                 <div className="flex flex-col sm:flex-row gap-3">
+                   {!isAuthenticated && (
+                     <Link to="/auth" className="text-text-muted hover:text-brand px-8 py-3 rounded-full text-sm font-bold cursor-pointer text-center border border-gray-100 hover:border-brand/20 transition-all">
+                       Sign In
+                     </Link>
+                   )}
+                   <Link to="/premium" className="bg-brand text-white px-8 py-3 rounded-full hover:bg-brand-hover transition-all font-bold text-sm cursor-pointer flex items-center gap-2 justify-center">
+                     <Crown className="w-3.5 h-3.5" /> Upgrade to Premium
+                   </Link>
+                 </div>
               </div>
             )}
           

@@ -11,6 +11,8 @@ export interface Recipe {
   ingredients?: string[];
   instructions?: string;
   is_premium?: boolean;
+  view_count?: number;
+  favorite_count?: number;
 }
 
 export function RecipeCard({ recipe }: { recipe: Recipe }) {

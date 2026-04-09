@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabase";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X, Loader2, Eye, Heart } from "lucide-react";
 
 export interface Recipe {
   id: string;
@@ -12,6 +12,8 @@ export interface Recipe {
   image_url: string;
   author_id?: string;
   is_premium?: boolean;
+  view_count?: number;
+  favorite_count?: number;
 }
 
 const CATEGORIES = ["All", "Coffee", "Cocktail", "Tea", "Juice", "Smoothie"];
@@ -128,7 +130,15 @@ export function Gallery({ compact = false }: { compact?: boolean }) {
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => {
+                    setActiveCategory(cat);
+                    // Clear search when switching category to avoid empty results
+                    if (searchInput) {
+                      setSearchInput("");
+                      searchParams.delete("q");
+                      setSearchParams(searchParams);
+                    }
+                  }}
                   className={`text-[12px] font-bold font-sans tracking-[0.2em] uppercase transition-colors focus:outline-none cursor-pointer ${activeCategory === cat
                       ? "text-brand border-b-2 border-brand pb-1.5"
                       : "text-gray-400 hover:text-brand"
@@ -202,9 +212,14 @@ export function Gallery({ compact = false }: { compact?: boolean }) {
                           {recipe.category}
                         </span>
                       </div>
-                      <p className="text-[13px] text-gray-400 font-medium line-clamp-2 leading-relaxed">
-                        {recipe.description || "Discover the delicate balance of flavors in this handcrafted drink masterpiece."}
-                      </p>
+                      <div className="flex items-center gap-4 text-[11px] text-gray-400 font-medium">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5" /> {(recipe.view_count || 0).toLocaleString()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3.5 h-3.5" /> {(recipe.favorite_count || 0).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
 
                     <Link

@@ -2,24 +2,24 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAdmin } from "../lib/useAdmin";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Crown } from "lucide-react";
 import toast from "react-hot-toast";
 
 export function Navbar() {
-  const { isAuthenticated, isAdmin, user } = useAdmin();
+  const { isAuthenticated, isAdmin, isPremiumUser, user } = useAdmin();
   const navigate = useNavigate();
 
   const userDisplayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
 
   const handleSignOut = async () => {
-    const toastId = toast.loading("Đang đăng xuất...");
+    const toastId = toast.loading("Signing out...");
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      toast.success("Hẹn gặp lại!", { id: toastId });
+      toast.success("See you soon!", { id: toastId });
       navigate("/");
     } catch (error: any) {
-      toast.error(error.message || "Lỗi khi đăng xuất", { id: toastId });
+      toast.error(error.message || "Failed to sign out", { id: toastId });
     }
   };
 
@@ -31,6 +31,11 @@ export function Navbar() {
         </Link>
         <nav className="flex gap-4 md:gap-8 text-[15px] font-medium text-text-muted items-center">
           <Link to="/gallery" className="hover:text-brand transition-colors">Gallery</Link>
+          {!isPremiumUser && (
+            <Link to="/premium" className="hover:text-brand transition-colors hidden sm:flex items-center gap-1.5">
+              <Crown className="w-3.5 h-3.5" /> Premium
+            </Link>
+          )}
           <AnimatePresence mode="wait">
             {isAdmin && (
               <motion.div
@@ -58,6 +63,11 @@ export function Navbar() {
                 </Link>
                 
                 <span className="flex items-center gap-2.5 text-text-main text-[13px] font-bold border-l border-gray-200 pl-2.5 md:pl-4">
+                  {isPremiumUser && (
+                    <span className="text-brand" title="Premium Member">
+                      <Crown className="w-4 h-4 fill-brand/20" />
+                    </span>
+                  )}
                   <div className="w-6 h-6 rounded-full bg-brand/10 text-brand flex items-center justify-center text-[11px] uppercase shrink-0">
                     {userDisplayName[0]}
                   </div>
