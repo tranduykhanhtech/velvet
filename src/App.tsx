@@ -6,6 +6,7 @@ import { MyFavorites } from "./pages/MyFavorites";
 import { RecipeDetail } from "./pages/RecipeDetail";
 import { Auth } from "./pages/Auth";
 import { Premium } from "./pages/Premium";
+import { Profile } from "./pages/Profile";
 
 // Studio
 import { AdminRoute } from "./components/AdminRoute";
@@ -29,6 +30,7 @@ function App() {
           {/* User Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="favorites" element={<MyFavorites />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Route>
 

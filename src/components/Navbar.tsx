@@ -62,7 +62,7 @@ export function Navbar() {
                   <Heart className="w-[18px] h-[18px]" />
                 </Link>
                 
-                <span className="flex items-center gap-2.5 text-text-main text-[13px] font-bold border-l border-gray-200 pl-2.5 md:pl-4">
+                <Link to="/profile" className="flex items-center gap-2.5 text-text-main text-[13px] font-bold border-l border-gray-200 pl-2.5 md:pl-4 hover:text-brand transition-colors">
                   {isPremiumUser && (
                     <span className="text-brand" title="Premium Member">
                       <Crown className="w-4 h-4 fill-brand/20" />
@@ -72,7 +72,7 @@ export function Navbar() {
                     {userDisplayName[0]}
                   </div>
                   <span className="hidden md:inline truncate max-w-[80px]">{userDisplayName}</span>
-                </span>
+                </Link>
                 <button 
                   onClick={handleSignOut} 
                   className="text-gray-400 hover:text-brand transition-colors focus:outline-none cursor-pointer text-[12px] uppercase tracking-tighter font-bold shrink-0"
