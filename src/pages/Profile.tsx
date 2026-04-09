@@ -17,7 +17,7 @@ interface FavRecipe {
 }
 
 export function Profile() {
-  const { isAuthenticated, isPremiumUser, premiumPlan, isAdmin, user, loading } = useAdmin();
+  const { isAuthenticated, isPremiumUser, isAdmin, user, loading } = useAdmin();
   const navigate = useNavigate();
 
   const [displayName, setDisplayName] = useState("");
