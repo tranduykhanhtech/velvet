@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { Toaster } from "react-hot-toast";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 
@@ -24,6 +25,28 @@ export function Layout() {
         </AnimatePresence>
       </main>
       <Footer />
+      <Toaster 
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: '#ffffff',
+            color: '#1a1a1a',
+            fontFamily: '"Inter", sans-serif',
+            fontSize: '13px',
+            fontWeight: '500',
+            borderRadius: '12px',
+            boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)',
+            border: '1px solid #f3f4f6',
+            padding: '12px 20px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#A89278',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
   );
 }

@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabase";
-import { Search, X, Loader2, Eye, Heart } from "lucide-react";
+import { Search, X, Eye, Heart } from "lucide-react";
+import { RecipeCardSkeleton } from "../components/Skeleton";
 
 export interface Recipe {
   id: string;
@@ -108,14 +109,14 @@ export function Gallery({ compact = false }: { compact?: boolean }) {
               <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400 group-focus-within:text-brand transition-colors" />
               </div>
-              <input 
+              <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search recipes..."
                 className="w-full pl-14 pr-14 h-15 bg-gray-50 border border-transparent rounded-full text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/10 focus:bg-white transition-all font-sans text-text-main"
               />
-              {searchInput && ( 
+              {searchInput && (
                 <button
                   onClick={() => setSearchInput("")}
                   className="absolute inset-y-0 right-5 flex items-center text-gray-400 hover:text-brand transition-colors cursor-pointer"
@@ -140,8 +141,8 @@ export function Gallery({ compact = false }: { compact?: boolean }) {
                     }
                   }}
                   className={`text-[12px] font-bold font-sans tracking-[0.2em] uppercase transition-colors focus:outline-none cursor-pointer ${activeCategory === cat
-                      ? "text-brand border-b-2 border-brand pb-1.5"
-                      : "text-gray-400 hover:text-brand"
+                    ? "text-brand border-b-2 border-brand pb-1.5"
+                    : "text-gray-400 hover:text-brand"
                     }`}
                 >
                   {cat}
@@ -162,9 +163,10 @@ export function Gallery({ compact = false }: { compact?: boolean }) {
         )}
 
         {loading ? (
-          <div className="flex-grow flex flex-col items-center justify-center py-16 gap-6">
-            <Loader2 className="w-10 h-10 text-brand animate-spin" />
-            <p className="text-gray-400 text-[13px] font-bold tracking-[0.2em] uppercase">Fetching recipes...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <RecipeCardSkeleton key={i} />
+            ))}
           </div>
         ) : (
           <AnimatePresence mode="wait">
@@ -173,9 +175,9 @@ export function Gallery({ compact = false }: { compact?: boolean }) {
                 key="results"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }} 
+                exit={{ opacity: 0 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
-              > 
+              >
                 {recipes.map((recipe) => (
                   <motion.div
                     key={recipe.id}
@@ -232,7 +234,7 @@ export function Gallery({ compact = false }: { compact?: boolean }) {
                 ))}
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
